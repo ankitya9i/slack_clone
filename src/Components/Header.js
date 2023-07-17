@@ -1,4 +1,5 @@
-import React from 'react'
+import React, { useState } from 'react'
+import  { useRef } from "react";
 import styled from 'styled-components'
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
@@ -13,24 +14,98 @@ import PeopleAltIcon from '@mui/icons-material/PeopleAlt';
 import AppsIcon from '@mui/icons-material/Apps';
 import FilterAltIcon from '@mui/icons-material/FilterAlt';
 import { useAuthState } from 'react-firebase-hooks/auth';
-import { auth } from '../firebase';
+import { auth, db } from '../firebase';
 import Avatar from '@mui/material/Avatar';
+import { collection } from 'firebase/firestore';
+import { useCollection } from 'react-firebase-hooks/firestore';
+import CloseIcon from '@mui/icons-material/Close';
+import { enterRoom } from '../features/appSlice';
+import { useDispatch } from 'react-redux';
+import AccountMenu from './Account'
+import emailjs from "@emailjs/browser";
+import Sendmail from './Sendmail'
+import './Header.css'
 function Header() {
+  const [wordEntered, setWordEntered] = useState("");
   const [user,loading] = useAuthState(auth);
+  const [roomdetails]=useCollection(collection(db, 'rooms')
+ 
+);
+const dispatch=useDispatch();
+const [filteredData, setFilteredData] = useState([]);
+
+const handleFilter = (event) => {
+
+  const searchWord = event.target.value;
+  setWordEntered(searchWord);
+  const newFilter = roomdetails?.docs.filter((value) => {
+    return value.data().name.toLowerCase().includes(searchWord.toLowerCase());
+  });
+
+  if (searchWord === "") {
+    setFilteredData([]);
+  } else {
+    setFilteredData(newFilter);
+  }
+};
+const clearInput = () => {
+  setFilteredData([]);
+  setWordEntered("");
+};
+const selectchannel = (id) => {
+  console.log("select channel")
+  
+  if(id){
+    setFilteredData([]);
+    setWordEntered("")
+    dispatch(enterRoom({
+      roomId:id,
+    }
+    ))
+  }
+}
   return (
     <HeaderCointainer>
       <Headerlft>
-      <Avatar onClick={()=>auth.signOut()} alt="Remy Sharp" src={user?.photoURL} 
-       fontSize='large'/>
+
+      <AccountMenu/>
+
       <AccessTimeIcon/>
       </Headerlft>
       <Headresearch>
-        <SearchIcon/>
-        <input />
+      <div className="searchIcon">
+          {filteredData.length === 0 ? (
+            <SearchIcon />
+          ) : (
+            <CloseIcon id="clearBtn" onClick={clearInput} />
+          )}
+        </div>
+        <input type="text"
+          placeholder='Search channels By name'
+          value={wordEntered}
+          onChange={handleFilter}/>
       </Headresearch>
       <HRight>
       <HelpOutlineIcon fontSize='large'/>
+      <Sendmail/>
+      {/* var code now */}
+      
+    {/* <Contact/> */}
       </HRight>
+      {filteredData.length != 0 && (
+        <div className="dataResult">
+          {filteredData.slice(0, 15).map((value) => {
+            return (
+              
+               
+              <div className='dataItem'  onClick={()=>selectchannel(value.id)}>
+                 <p>{value.data().name} </p>
+              </div>
+                
+            );
+          })}
+        </div>
+      )}
     </HeaderCointainer>
   )
 }
@@ -47,13 +122,14 @@ background-color: var(--slack-color);
 `;
 const Headerlft =styled.div`
 
-flex: 0.2;
+flex: 0.18;
 display: flex;
 align-items: center;
+justify-content: space-between;
 color:white;
 
 > .MuiSvgIcon-root {
-  margin-left:auto;
+
   margin-right: 30px;
   padding:10px 0;
 }
@@ -79,6 +155,11 @@ justify-content: center;
   text-align:center;
   color: white;
   font-size: large;
+ 
+}
+> input::placeholder{
+  color: black;
+  opacity: 0.4;
 }
 `;
 const HRight =styled.div`

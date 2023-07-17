@@ -25,6 +25,7 @@ function Login() {
           // The AuthCredential type that was used.
           const credential = GoogleAuthProvider.credentialFromError(error);
           // ...
+          console.error(errorMessage);
         });
          }
   return (
@@ -43,6 +44,9 @@ function Login() {
     </div>
   )
 }
+
+
+
 
 export default Login
 const Loginc=styled.div` 
@@ -66,7 +70,7 @@ border-radius: 10px;
 >button{
     margin-top: 50px;
     text-transform: inherit !important;
-    background-color:blue;
+    background-color:#444;
     color:white;
 }
 `;

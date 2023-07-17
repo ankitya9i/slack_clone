@@ -1,10 +1,8 @@
 import React from 'react';
-import Temp from './temp';
 import Header from './Components/Header';
 import Sidebar from './Components/Sidebar';
 import Login from './Components/Login'; 
 import styled from 'styled-components';
-import {useCollection} from 'react-firebase-hooks/firestore'
 import { useAuthState } from 'react-firebase-hooks/auth';
 import { auth } from './firebase';
 import Spinner from "react-spinkit";
@@ -12,7 +10,6 @@ import {
   BrowserRouter,
   Routes,
   Route,
-  Link,
 } from "react-router-dom";
 import Chats from './Components/Chats';
 function App() {
@@ -37,7 +34,7 @@ function App() {
         <Header />
       <Routes>
       <Route path="/" element={<Chats/>} />
-      
+  
       </Routes>
       </AppBody>
       </>

@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { db } from '../firebase';
 import styled from 'styled-components'
 import InfoIcon from '@mui/icons-material/Info';
@@ -6,24 +6,35 @@ import StarBorderIcon from '@mui/icons-material/StarBorder';
 import { useSelector } from 'react-redux';
 import { selectRoomId } from '../features/appSlice';
 import Chatinput from './Chatinput';
-import { useCollection, useDocument } from 'react-firebase-hooks/firestore';
-import { collection, doc } from 'firebase/firestore';
+import {  useDocument } from 'react-firebase-hooks/firestore';
+import { collection, doc, onSnapshot, orderBy, query } from 'firebase/firestore';
 import Msg from './Msg';
-import {img1} from './img11.png';
+import Notes from './Notes';
 function Chats() {
     const chatref=useRef(null);
     const roomid = useSelector(selectRoomId);
-    const [roomdetails]=useDocument(
+    const [roomdetails,loading]=useDocument(
         roomid&& doc(db, 'rooms',roomid)
     );
-    console.log(roomdetails?.data().name);
-    const [roommsgs,loading]=useCollection(
-        roomid && collection(db, 'rooms',roomid,'meassages')
-    );
+    const [roommsgs,setroommsgs]=useState([]);
+    useEffect(() => {
+        if(roomid){
+            const msgColl = query(collection(db, "rooms", roomid, "meassages"), orderBy("timestamp","asc"));
+            onSnapshot(msgColl, (querySnapshot) => {
+                setroommsgs(querySnapshot.docs.map(msg => msg.data()))
+            });
+        }
+        
+    }, [roomid])
+
      useEffect(() => {
-       chatref?.current?.scrollIntoView();
+        console.log("chat ref here",chatref)
+       chatref?.current?.scrollIntoView({
+        behavior: "smooth",
+        
+       });
+       
      }, [roomid,loading]) 
-    console.log(chatref.current,"ueref")
 return(
     
     <Chatcointer> 
@@ -37,6 +48,7 @@ return(
                         </strong>
                     </h4>
                     <StarBorderIcon/>
+                    <Notes/>
                 </Headerleft>
                 <Headrright>
             
@@ -45,13 +57,13 @@ return(
             </Header>
             <Chatmessages>
            
-             {roommsgs?.docs.map((doc)=>(
-           <Msg key={doc.id} msg1={doc.data().meassage} img1={doc.data().userimage} user={doc.data().user} />
+             {roommsgs?.map((doc)=>(
+
+           <Msg key={doc.id} msg1={doc.meassage} img1={doc.userimage} user={doc.user} time={doc.timestamp} url={doc.url} 
+           filename={doc.filename}/>
          ))}
                 
-              
-                <Chatinput chatref={chatref} channelName={roomdetails?.data().name} channelId={roomid}>
-               
+                <Chatinput  channelName={roomdetails?.data().name} channelId={roomid} chatRef={chatref}>
                 </Chatinput>
                 <Chatbottom ref={chatref}>
     
@@ -64,10 +76,12 @@ return(
 )}
 export default Chats
 const Chatcointer=styled.div`
-flex:0.3;
+flex:0.8;
 flex-grow:1;
 overflow:scroll;
 margin-top:60px;
+background-color: #DCDCDC;
+padding: 20px;
 `
 ;
 const Header=styled.div`
@@ -97,5 +111,6 @@ align-items: center;
 `;
 const Headrright=styled.div``;
 const Chatmessages=styled.div`
+
 `;
 const Chatbottom=styled.div``;

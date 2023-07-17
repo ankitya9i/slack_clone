@@ -28,9 +28,9 @@ function Sidebar({user}) {
         </SidebarInfo>
     </Side>
    
-    <Sidebarptions Icon={InsertCommentIcon} title="hello everyone"/>
-    <Sidebarptions Icon={InboxIcon} title="hello everyone"/>
-    <Sidebarptions Icon={DraftsIcon} title="hello everyone"/>
+    <Sidebarptions Icon={InsertCommentIcon} title="Drafts And send"/>
+    <Sidebarptions Icon={InboxIcon} title="Connect"/>
+    <Sidebarptions Icon={DraftsIcon} title="Browse project"/>
     <Sidebarptions Icon={BookmarkBorderIcon} title="hello everyone"/>
     <Sidebarptions Icon={PeopleAltIcon} title="hello everyone"/>
     <Sidebarptions Icon={AppsIcon} title="hello everyone"/>
@@ -56,6 +56,11 @@ const Sidebarbox=styled.div`
     padding: 4px;
     flex:0.2;
     max-width: 20vw;
+
+
+    overflow: hidden;
+    overflow-y: auto;
+
     >hr{
        margin-top: 10px;
        margin-bottom: 10px;
